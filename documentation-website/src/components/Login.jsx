@@ -19,11 +19,12 @@ const Login = () => {
   };
 
   return (
-    <motion.div
+    <div className="login-page">
+    <motion.div 
       className="login-container"
-      initial={{ opacity: 0, y: -50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.3 }}
     >
       <h1>Admin Login</h1>
       <form onSubmit={handleLogin}>
@@ -61,6 +62,7 @@ const Login = () => {
       </form>
       {error && <p className="error">{error}</p>}
     </motion.div>
+  </div>
   );
 };
 
