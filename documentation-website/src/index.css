@@ -1,12 +1,13 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.content-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f2f5;
-  overflow: hidden;
+  flex-direction: column;
+  gap: 2rem; /* Space between elements */
 }
 
 .login-container {
@@ -116,10 +117,13 @@ button:hover {
 }
 
 .main-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
   flex: 1;
-  margin-left: 250px; /* Same as sidebar width */
+  margin-left: 250px;
   height: 100vh;
-  overflow-y: auto; /* Enable scrolling for content */
+  overflow-y: auto;
   padding: 2rem;
   box-sizing: border-box;
 }
@@ -139,3 +143,56 @@ button:hover {
   color: #5a6a7d;
   line-height: 1.6;
 }
+
+.paragraph-container {
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+
+.user-icon-container {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem; /* Changed from left to right */
+  z-index: 10;
+}
+
+
+/* Image Slider Styles */
+.swiper-container {
+  height: 50vh !important; /* Force half-screen height */
+  max-height: 600px; /* Optional maximum height */
+}
+
+.swiper-slide img {
+  object-fit: cover; 
+  width: 100%;
+  height: 100%;
+}
+
+/* Navigation controls positioning */
+.swiper-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.8rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.swiper-nav:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.swiper-button-prev-custom { left: 1.5rem; }
+.swiper-button-next-custom { right: 1.5rem; }

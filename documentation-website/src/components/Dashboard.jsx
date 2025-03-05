@@ -1,35 +1,50 @@
 // Dashboard.jsx
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaHome, FaBuilding, FaCalendarAlt, FaRunning } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper/modules";
+import {
+  FaUser,
+  FaHome,
+  FaBuilding,
+  FaCalendarAlt,
+  FaRunning,
+  FaChevronLeft,
+  FaChevronRight
+} from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
+// Swiper styles { i used this for image slider}
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('Home');
+  const [activeTab, setActiveTab] = useState("Home");
   const navigate = useNavigate();
-
+  const images = ["/Image.jpg", "/Image2.jpg"];
   const navItems = [
-    { id: 1, name: 'Home', icon: <FaHome /> },
-    { id: 2, name: 'Departments', icon: <FaBuilding /> },
-    { id: 3, name: 'Events', icon: <FaCalendarAlt /> },
-    { id: 4, name: 'Activities', icon: <FaRunning /> },
+    { id: 1, name: "Home", icon: <FaHome /> },
+    { id: 2, name: "Departments", icon: <FaBuilding /> },
+    { id: 3, name: "Events", icon: <FaCalendarAlt /> },
+    { id: 4, name: "Activities", icon: <FaRunning /> },
   ];
 
   return (
     <div className="dashboard-container">
       {/* Navigation Sidebar */}
-      <motion.nav 
+      <motion.nav
         className="sidebar"
         initial={{ x: -100 }}
         animate={{ x: 0 }}
-        transition={{ type: 'spring', stiffness: 100 }}
+        transition={{ type: "spring", stiffness: 100 }}
       >
         <div className="logo">Admin Panel</div>
         <div className="nav-items">
           {navItems.map((item) => (
             <motion.div
               key={item.id}
-              className={`nav-item ${activeTab === item.name ? 'active' : ''}`}
+              className={`nav-item ${activeTab === item.name ? "active" : ""}`}
               onClick={() => setActiveTab(item.name)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -43,16 +58,62 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <main className="main-content">
+        <div className="user-icon-container">
+          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+            <FaUser className="user-icon" />
+          </motion.div>
+        </div>
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
+          style={{ flex: 1 }}
         >
           <h1>Welcome to {activeTab}</h1>
-          <p>This is the {activeTab.toLowerCase()} section of the dashboard.
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis optio, commodi doloribus architecto qui aliquam amet praesentium et quidem molestias laboriosam delectus vel? Fugit sed odio sapiente sequi deleniti laudantium.
-          </p>
-          {/* Add your content components here based on activeTab */}
+    
+    {/* Image Slider */}
+    <div className="swiper-container">
+    <Swiper
+  className="swiper-container"
+  modules={[Navigation, Pagination, Autoplay]}
+  spaceBetween={30}
+  slidesPerView={1}
+  loop={true}
+  autoplay={{ delay: 3000 }}
+  pagination={{ clickable: true }}
+  navigation={{
+    nextEl: '.swiper-button-next-custom',
+    prevEl: '.swiper-button-prev-custom',
+  }}
+>
+  {images.map((img, index) => (
+    <SwiperSlide key={index}>
+      <img 
+        src={img} 
+        alt={`Slide ${index + 1}`} 
+        className="slider-image"
+      />
+    </SwiperSlide>
+  ))}
+  
+  {/* Navigation Arrows */}
+  <div className="swiper-nav swiper-button-prev-custom">
+    <FaChevronLeft size={24} />
+  </div>
+  <div className="swiper-nav swiper-button-next-custom">
+    <FaChevronRight size={24} />
+  </div>
+</Swiper>
+    </div>
+    <div className="paragraph-container">
+      <p>
+        This is the {activeTab.toLowerCase()} section of the dashboard.
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis optio,
+        commodi doloribus architecto qui aliquam amet praesentium et quidem
+        molestias laboriosam delectus vel? Fugit sed odio sapiente sequi
+        deleniti laudantium.
+      </p>
+      </div>
         </motion.div>
       </main>
     </div>
