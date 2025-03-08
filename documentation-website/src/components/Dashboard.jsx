@@ -69,7 +69,7 @@ const Dashboard = () => {
           transition={{ duration: 0.5 }}
           style={{ flex: 1 }}
         >
-          <h1>Welcome to {activeTab}</h1>
+          <h1>{activeTab}</h1>
 
           {/* Image Slider */}
           <div className="swiper-container">
@@ -105,6 +105,70 @@ const Dashboard = () => {
               </div>
             </Swiper>
           </div>
+
+          {activeTab === "Home" && (
+            <div className="content-sections">
+              {/* Section 1 */}
+              <motion.div
+                className="content-block"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="image-wrapper">
+                  <img src="/Image2.jpg" alt="Section 1" />
+                </div>
+                <div className="text-content">
+                  <h3>About College</h3>
+                  <p>
+                    Our state-of-the-art facilities provide the perfect
+                    environment for innovation and growth. Designed with
+                    sustainability in mind.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Section 2 */}
+              <motion.div
+                className="content-block"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <div className="text-content">
+                  <h3>Placements</h3>
+                  <p>
+                    Leveraging the latest advancements in AI and machine
+                    learning to drive business transformation and operational
+                    efficiency.
+                  </p>
+                </div>
+                <div className="image-wrapper">
+                  <img src="/Image2.jpg" alt="Section 2" />
+                </div>
+              </motion.div>
+
+              {/* Section 3 */}
+              <motion.div
+                className="content-block"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <div className="image-wrapper">
+                  <img src="/Image2.jpg" alt="Section 3" />
+                </div>
+                <div className="text-content">
+                  <h3>Success stories</h3>
+                  <p>
+                    Connecting teams worldwide through our secure cloud-based
+                    collaboration platform, enabling seamless communication.
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          )}
+
           <div className="paragraph-container">
             <p>
               This is the {activeTab.toLowerCase()} section of the dashboard.
