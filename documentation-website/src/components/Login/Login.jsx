@@ -27,6 +27,9 @@ const Login = () => {
       transition={{ duration: 0.3 }}
     >
       <h1>Admin Login</h1>
+      <div className="login-illustration">
+        <img src="/path/to/login-illustration.svg" alt="Login" />
+      </div>
       <form onSubmit={handleLogin}>
         <motion.div
           whileHover={{ scale: 1.05 }}

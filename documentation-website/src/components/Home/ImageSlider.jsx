@@ -3,11 +3,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-// import "swiper/css";
-// import "swiper/css/navigation";
-// import "swiper/css/pagination";
 const ImageSlider = () => {
-  const images = ["/Image.jpg", "/Image2.jpg"];
+  const images = [
+    "/Image3.jpg", 
+    "/Image3.jpg",
+    "/Image3.jpg",
+    "/Image3.jpg"
+  ];
 
   return (
     <div className="swiper-container">
