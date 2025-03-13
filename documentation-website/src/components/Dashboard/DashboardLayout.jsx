@@ -1,28 +1,52 @@
-// Dashboard.jsx
-import React from "react";
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import { motion } from "framer-motion";
-import { FaUser } from "react-icons/fa";
+import React from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { FaUser } from 'react-icons/fa';
 
 const DashboardLayout = () => {
+  const navItems = [
+    { path: '/dashboard', name: 'Home' },
+    { path: '/dashboard/departments', name: 'Departments' },
+    { path: '/dashboard/events', name: 'Events' },
+    { path: '/dashboard/activities', name: 'Activities' },
+  ];
+
   return (
-    <div className="dashboard-container">
-      <Sidebar />
-      <main className="main-content">
-        <Outlet /> {/* This will render nested routes */}
-        <div className="user-icon-container">
-          <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <FaUser className="user-icon" />
+    <div className="dashboard-wrapper">
+      <header className="top-nav">
+        <div className="logo">
+          <img src="/Dashboard-image.jpg" alt="Dashboard Logo" />
+          <span>College Dashboard</span>
+        </div>
+        <nav className="nav-links">
+          {navItems.map((item) => (
+            <NavLink 
+              key={item.path} 
+              to={item.path} 
+              className={({ isActive }) => isActive ? 'active nav-item' : 'nav-item'}
+            >
+              {item.name}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="dashboard-actions">
+          <motion.div 
+            className="user-profile"
+            whileHover={{ scale: 1.05 }}
+          >
+            <div className="user-icon-container">
+              <FaUser />
+            </div>
+            <span className="user-name">Admin</span>
           </motion.div>
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          style={{ flex: 1 }}
-        ></motion.div>
+      </header>
+      <main className="dashboard-content">
+        <Outlet />
       </main>
+      <footer className="dashboard-footer">
+        <p>2025 | © Faraz Akhtar Khan</p>
+      </footer>
     </div>
   );
 };

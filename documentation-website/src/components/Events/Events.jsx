@@ -94,7 +94,7 @@ const Events = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <FaPlusCircle /> {showForm ? 'Close Form' : 'Add New Event'}
+       {showForm ? 'Close Form' : 'Add New Event'}
       </motion.button>
 
       {showForm && (
