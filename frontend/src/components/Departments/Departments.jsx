@@ -6,11 +6,20 @@ import { Link } from 'react-router-dom';
 const Departments = () => {
   const [departments, setDepartments] = useState([]);
 
+  // Map department abbreviations to icons
+  const iconMap = {
+    SSCS: <FaFlask />,
+    SOM: <FaChartLine />,
+    SOH: <FaBook />,
+    SOL:<FaBalanceScale/>,
+    SOLS:<FaCogs/>,
+    SOET:<FaCogs/>,
+  };
+
   useEffect(() => {
     fetch('/api/departments')
       .then(res => res.json())
       .then(data => {
-        // Assume backend returns { departments: [ ... ] }
         setDepartments(data.departments);
       })
       .catch(err => console.error(err));
@@ -37,28 +46,25 @@ const Departments = () => {
             className="department-image"
             whileHover={{ scale: 1.05 }}
           >
-            {/* ...existing code... */}
             <img src={dept.image || '/placeholder.jpg'} alt={dept.name} />
           </motion.div>
           
           <div className="department-content">
             <div className="department-header">
               <div className="dept-icon">
-                {/* Choose an icon based on department abbreviation or default */}
-                <FaFlask />
+                {/* Choose an icon based on department abbreviation */}
+                {iconMap[dept.abbr] || <FaFlask />}
               </div>
               <h2>{dept.name} <span className="dept-abbr">({dept.abbr})</span></h2>
             </div>
             
             <p className="dept-description">
-              {/* ...existing code... A placeholder description if not provided */}
               {dept.description || 'Department description goes here.'}
             </p>
             
             <div className="dept-features">
               <h4>Features & Facilities</h4>
               <ul>
-                {/* ...existing code... */}
                 <li>Feature 1</li>
                 <li>Feature 2</li>
               </ul>
@@ -66,7 +72,11 @@ const Departments = () => {
             
             <div className="dept-events-preview">
               <h4>Upcoming Events</h4>
-              <Link to={`/dashboard/events`} className="view-dept-events">
+              {/* Update the link to navigate to records with the department name as a filter parameter */}
+              <Link 
+                to={`/dashboard/records?department=${encodeURIComponent(dept.name)}`} 
+                className="view-dept-events"
+              >
                 View Department Events <FaArrowRight />
               </Link>
             </div>

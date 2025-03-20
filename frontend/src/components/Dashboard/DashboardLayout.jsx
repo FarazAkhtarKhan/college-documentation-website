@@ -8,7 +8,7 @@ const DashboardLayout = () => {
     { path: '/dashboard', name: 'Home' },
     { path: '/dashboard/departments', name: 'Departments' },
     { path: '/dashboard/events', name: 'Events' },
-    { path: '/dashboard/activities', name: 'Activities' },
+    { path: '/dashboard/records', name: 'Records' },  // Updated path and name
   ];
 
   return (

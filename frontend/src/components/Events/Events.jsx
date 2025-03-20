@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FaCalendarAlt, FaClock, FaUniversity, FaHeading, 
-  FaAlignLeft, FaListUl, FaChevronDown, FaChevronUp, FaTrash 
+  FaAlignLeft, FaListUl, FaChevronDown, FaChevronUp, FaTrash,
+  FaCheckCircle, FaRegCheckCircle
 } from 'react-icons/fa';
+import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 const Events = () => {
+  const { currentUser } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [events, setEvents] = useState([]);
   const [expandedDepartments, setExpandedDepartments] = useState({});
@@ -29,48 +33,125 @@ const Events = () => {
   ];
 
   useEffect(() => {
-    fetch('/api/events')
-      .then(res => res.json())
-      .then(data => {
-        setEvents(data.events);
-      })
-      .catch(err => console.error(err));
+    fetchEvents();
   }, []);
+  
+  const fetchEvents = async () => {
+    try {
+      const response = await axios.get('/api/events');
+      
+      // Filter for upcoming events only (events that haven't ended yet and aren't manually completed)
+      const today = new Date();
+      const upcomingEvents = response.data.events.filter(event => 
+        (new Date(event.endDate) >= today) && !event.completed
+      );
+      
+      setEvents(upcomingEvents);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+    }
+  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    fetch('/api/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData)
-    })
-      .then(res => res.json())
-      .then(data => {
-        setEvents(prev => [...prev, data.event]);
-        setFormData({
-          title: '',
-          department: '',
-          startDate: '',
-          endDate: '',
-          startTime: '',
-          endTime: '',
-          details: ''
-        });
-        setShowForm(false);
-      })
-      .catch(err => console.error(err));
+    try {
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No authentication token found');
+        return;
+      }
+      
+      const response = await axios.post('/api/events', formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Only add to the list if it's an upcoming event
+      const eventEndDate = new Date(response.data.event.endDate);
+      if (eventEndDate >= new Date()) {
+        setEvents(prev => [...prev, response.data.event]);
+      }
+      
+      setFormData({
+        title: '',
+        department: '',
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: '',
+        details: ''
+      });
+      setShowForm(false);
+    } catch (err) {
+      console.error('Error creating event:', err.response?.data || err.message);
+      
+      if (err.response?.status === 401) {
+        alert('You need to be logged in to create events.');
+      } else if (err.response?.status === 403) {
+        alert('You do not have permission to create events. Admin access is required.');
+      } else {
+        alert('Failed to create event. Please try again later.');
+      }
+    }
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleDeleteEvent = (eventId) => {
-    fetch(`/api/events/${eventId}`, { method: 'DELETE' })
-      .then(() => {
-        setEvents(prev => prev.filter(event => event.id !== eventId));
-      })
-      .catch(err => console.error(err));
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No authentication token found');
+        return;
+      }
+      
+      await axios.delete(`/api/events/${eventId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      setEvents(prev => prev.filter(event => event._id !== eventId));
+    } catch (err) {
+      console.error('Error deleting event:', err.response?.data || err.message);
+      alert('Failed to delete event. Please try again.');
+    }
+  };
+
+  const handleCompleteEvent = async (eventId) => {
+    try {
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error('No authentication token found');
+        return;
+      }
+      
+      await axios.patch(`/api/events/${eventId}/complete`, 
+        { completed: true },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+
+      // Remove the completed event from the display list
+      setEvents(prev => prev.filter(event => event._id !== eventId));
+    } catch (err) {
+      console.error('Error completing event:', err.response?.data || err.message);
+      alert('Failed to mark event as completed. Please try again.');
+    }
   };
 
   const eventsByDepartment = events.reduce((acc, event) => {
@@ -97,7 +178,7 @@ const Events = () => {
     >
       <div className="events-header">
         <h1 className="page-title">
-          <FaListUl /> Event Management
+          <FaListUl /> Upcoming Events
         </h1>
       </div>
 
@@ -118,7 +199,6 @@ const Events = () => {
           animate={{ opacity: 1, height: 'auto' }}
           exit={{ opacity: 0, height: 0 }}
         >
-          {/* ...existing form fields... */}
           <div className="form-group">
             <label><FaHeading /> Title</label>
             <input
@@ -233,7 +313,7 @@ const Events = () => {
                 <div className="department-events">
                   {eventsByDepartment[department].map(event => (
                     <motion.div 
-                      key={event.id}
+                      key={event._id}
                       className="event-card"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -241,21 +321,35 @@ const Events = () => {
                     >
                       <div className="event-header">
                         <h3>{event.title}</h3>
-                        <motion.button 
-                          className="delete-event-btn"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteEvent(event.id);
-                          }}
-                          whileHover={{ scale: 1.1 }}
-                          whileTap={{ scale: 0.9 }}
-                        >
-                          <FaTrash />
-                        </motion.button>
+                        <div className="card-actions">
+                          <motion.button 
+                            className="complete-event-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCompleteEvent(event._id);
+                            }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            title="Mark as completed"
+                          >
+                            <FaRegCheckCircle />
+                          </motion.button>
+                          <motion.button 
+                            className="delete-event-btn"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteEvent(event._id);
+                            }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            <FaTrash />
+                          </motion.button>
+                        </div>
                       </div>
                       <div className="event-dates">
                         <p>
-                          <FaCalendarAlt /> {event.startDate} - {event.endDate}
+                          <FaCalendarAlt /> {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
                         </p>
                         <p>
                           <FaClock /> {event.startTime} - {event.endTime}
