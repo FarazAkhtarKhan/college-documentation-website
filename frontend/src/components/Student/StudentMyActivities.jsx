@@ -66,7 +66,8 @@ const StudentMyActivities = () => {
 
   // Check if event is upcoming or past
   const isUpcomingEvent = (event) => {
-    return new Date(event.endDate) >= new Date();
+    // Consider both endDate and completed status
+    return !event.completed && new Date(event.endDate) >= new Date();
   };
 
   return (

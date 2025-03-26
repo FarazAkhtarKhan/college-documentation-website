@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FaCalendarAlt, FaClock, FaUniversity, FaHeading, 
   FaAlignLeft, FaListUl, FaChevronDown, FaChevronUp, FaTrash,
-  FaCheckCircle, FaRegCheckCircle
+  FaCheckCircle, FaRegCheckCircle, FaSearch, FaFilter
 } from 'react-icons/fa';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
@@ -22,6 +22,12 @@ const Events = () => {
     endTime: '',
     details: ''
   });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterVisible, setFilterVisible] = useState(false);
+  // Add missing state variables for infinite scroll
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const departments = [
     "SSCS - School of Science and Computer Studies",
@@ -33,25 +39,22 @@ const Events = () => {
   ];
 
   useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/events/active'); // Changed endpoint
+        setEvents(response.data.events);
+        setTotalPages(Math.ceil(response.data.events.length / 10)); // Assuming 10 items per page
+      } catch (err) {
+        console.error('Error fetching events:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchEvents();
   }, []);
   
-  const fetchEvents = async () => {
-    try {
-      const response = await axios.get('/api/events');
-      
-      // Filter for upcoming events only (events that haven't ended yet and aren't manually completed)
-      const today = new Date();
-      const upcomingEvents = response.data.events.filter(event => 
-        (new Date(event.endDate) >= today) && !event.completed
-      );
-      
-      setEvents(upcomingEvents);
-    } catch (err) {
-      console.error('Error fetching events:', err);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -169,6 +172,20 @@ const Events = () => {
     });
   };
 
+  const observer = useRef();
+  const lastElementRef = useCallback(node => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+  
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && currentPage < totalPages) {
+        setCurrentPage(prevPage => prevPage + 1);
+      }
+    });
+  
+    if (node) observer.current.observe(node);
+  }, [loading, currentPage, totalPages]);
+
   return (
     <motion.div 
       className="events-container"
@@ -180,6 +197,27 @@ const Events = () => {
         <h1 className="page-title">
           <FaListUl /> Upcoming Events
         </h1>
+      </div>
+
+      <div className="search-filter-container">
+        <div className="search-box" style={{ flex: '0 1 60%' }}> {/* Adjusted width */}
+          <FaSearch className="search-icon" />
+          <input 
+            type="text" 
+            placeholder="Search events..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        
+        <motion.button 
+          className="filter-button"
+          onClick={() => setFilterVisible(!filterVisible)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaFilter /> {filterVisible ? 'Hide Filters' : 'Show Filters'}
+        </motion.button>
       </div>
 
       <motion.button
@@ -311,9 +349,10 @@ const Events = () => {
               
               {(expandedDepartments[department] !== false) && (
                 <div className="department-events">
-                  {eventsByDepartment[department].map(event => (
+                  {eventsByDepartment[department].map((event, index) => (
                     <motion.div 
                       key={event._id}
+                      ref={index === eventsByDepartment[department].length - 1 ? lastElementRef : null}
                       className="event-card"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}

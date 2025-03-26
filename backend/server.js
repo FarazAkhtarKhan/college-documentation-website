@@ -275,6 +275,23 @@ app.get('/api/events/search', async (req, res) => {
   }
 });
 
+// Add this new endpoint for active events
+app.get('/api/events/active', async (req, res) => {
+  try {
+    const today = new Date();
+    const events = await Event.find({
+      $and: [
+        { completed: false }, // Not manually marked as completed
+        { endDate: { $gte: today } } // End date hasn't passed
+      ]
+    }).sort({ startDate: 1 });
+    res.json({ events });
+  } catch (error) {
+    console.error('Error fetching active events:', error);
+    res.status(500).json({ error: 'Error fetching active events' });
+  }
+});
+
 app.post('/api/events', authenticate, authorize(['admin']), async (req, res) => {
   try {
     const newEvent = new Event(req.body);
@@ -407,7 +424,11 @@ app.get('/api/student/events', authenticate, authorize(['student']), async (req,
   try {
     const userId = req.user.id;
     
-    const user = await User.findById(userId).populate('eventsParticipated');
+    const user = await User.findById(userId).populate({
+      path: 'eventsParticipated',
+      // Don't filter events here, send all participated events
+      options: { sort: { startDate: -1 } }
+    });
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

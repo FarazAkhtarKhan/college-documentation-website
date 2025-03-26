@@ -11,6 +11,9 @@ import Events from './components/Events/Events';
 import Records from './components/Records/Records';
 import StudentEvents from './components/Student/StudentEvents';
 import StudentMyActivities from './components/Student/StudentMyActivities';
+import StudentCalendar from './components/Student/StudentCalendar';
+import UserProfile from './components/Profile/UserProfile';
+import ChangePassword from './components/Profile/ChangePassword';
 
 // Protected route component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -52,6 +55,8 @@ const App = () => {
             <Route path="departments" element={<Departments />} />
             <Route path="events" element={<Events />} />
             <Route path="records" element={<Records />} />
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="change-password" element={<ChangePassword />} />
           </Route>
           
           {/* Student Routes */}
@@ -65,11 +70,15 @@ const App = () => {
           >
             <Route index element={<StudentHome />} />
             <Route path="events" element={<StudentEvents />} />
+            <Route path="calendar" element={<StudentCalendar />} />
             <Route path="my-activities" element={<StudentMyActivities />} />
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="change-password" element={<ChangePassword />} />
           </Route>
           
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/events" element={<Events />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

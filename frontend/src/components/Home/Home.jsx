@@ -86,7 +86,7 @@ const Home = () => {
   return (
     <div className="home-container">
       <section className="hero">
-        <img src="/Image.jpg" alt="College Campus" className="hero-image" />
+        <img src="/campus.png" alt="College Campus" className="hero-image" />
         <div className="hero-text">
           <h1>Welcome to the College Dashboard</h1>
           <p>Explore departments, events, and activities effortlessly.</p>
@@ -152,13 +152,40 @@ const Home = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
+                style={{ display: 'flex', alignItems: 'center', gap: '20px' }}
               >
-                <img src={dept.image || '/placeholder.jpg'} alt={dept.name} className="card-image" />
-                <div className="card-content">
+                <div style={{ width: '300px', height: '200px', overflow: 'hidden', borderRadius: '10px' }}>
+                  <img 
+                    src={dept.image || '/placeholder.jpg'} 
+                    alt={dept.name} 
+                    className="card-image" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                </div>
+                <div className="card-content" style={{ flex: 1 }}>
                   <h3>{dept.name} <span>({dept.abbr})</span></h3>
                   <p><FaHistory /> {dept.eventsConducted} Events Conducted</p>
                   <p>{dept.description?.substring(0, 100)}...</p>
-                  <Link to={`/dashboard/departments`} className="btn">Learn More</Link>
+                  <Link 
+                    to={`/dashboard/departments`} 
+                    className="btn" 
+                    style={{
+                      display: 'inline-block',
+                      padding: '10px 20px',
+                      backgroundColor: '#6c63ff', // Ensure a contrasting background color
+                      color: '#fff', // High contrast text color
+                      textDecoration: 'none',
+                      borderRadius: '5px',
+                      fontWeight: 'bold',
+                      textAlign: 'center',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', // Add subtle shadow for better visibility
+                      transition: 'background-color 0.3s ease'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#5a54d6'} // Hover effect
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#6c63ff'}
+                  >
+                    Learn More
+                  </Link>
                 </div>
               </motion.div>
             ))}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { 
   FaCalendarAlt, FaClock, FaUniversity, FaSearch, 
@@ -21,6 +21,22 @@ const StudentEvents = () => {
   const { currentUser } = useAuth();
   const [myParticipations, setMyParticipations] = useState([]);
   const [actionStatus, setActionStatus] = useState({ message: '', type: '' });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const observer = useRef();
+  const lastElementRef = useCallback(node => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && currentPage < totalPages) {
+        setCurrentPage(prevPage => prevPage + 1);
+      }
+    });
+
+    if (node) observer.current.observe(node);
+  }, [loading, currentPage, totalPages]);
 
   // Fetch upcoming events and user participations
   useEffect(() => {
@@ -184,7 +200,7 @@ const StudentEvents = () => {
       )}
 
       <div className="search-filter-container">
-        <div className="search-box">
+        <div className="search-box" style={{ flex: '0 1 60%' }}> {/* Adjusted width */}
           <FaSearch className="search-icon" />
           <input 
             type="text" 
@@ -273,7 +289,7 @@ const StudentEvents = () => {
       ) : (
         <div className="activities-grid">
           {filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => {
+            filteredEvents.map((event, index) => {
               const isParticipating = myParticipations.includes(event._id);
               const isEventFull = event.maxParticipants > 0 && 
                                  event.participants.length >= event.maxParticipants;
@@ -283,6 +299,7 @@ const StudentEvents = () => {
               return (
                 <motion.div 
                   key={event._id}
+                  ref={index === filteredEvents.length - 1 ? lastElementRef : null}
                   className={`event-card ${isParticipating ? 'participating-event' : ''}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

@@ -37,7 +37,7 @@ const Records = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   // Infinite scroll state
-  const [useInfiniteScroll, setUseInfiniteScroll] = useState(false);
+  const [useInfiniteScroll, setUseInfiniteScroll] = useState(true); // Default to infinite scroll
   const observer = useRef();
   const lastElementRef = useCallback(node => {
     if (loading) return;
@@ -138,15 +138,8 @@ const Records = () => {
   }, [filteredEvents.length, itemsPerPage, searchTerm, filters]);
 
   // Get current events for pagination
-  const indexOfLastEvent = useInfiniteScroll 
-    ? currentPage * itemsPerPage 
-    : currentPage * itemsPerPage;
-  const indexOfFirstEvent = useInfiniteScroll 
-    ? 0 
-    : indexOfLastEvent - itemsPerPage;
-  const currentEvents = useInfiniteScroll 
-    ? filteredEvents.slice(0, indexOfLastEvent)
-    : filteredEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const indexOfLastEvent = currentPage * itemsPerPage;
+  const currentEvents = filteredEvents.slice(0, indexOfLastEvent);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -172,10 +165,7 @@ const Records = () => {
     window.scrollTo(0, 0);
   };
 
-  const togglePaginationMode = () => {
-    setUseInfiniteScroll(!useInfiniteScroll);
-    setCurrentPage(1); // Reset to first page when changing modes
-  };
+  const togglePaginationMode = () => {}; // Remove toggle functionality
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -436,7 +426,7 @@ const Records = () => {
       )}
       
       <div className="search-filter-container">
-        <div className="search-box">
+        <div className="search-box" style={{ flex: '0 1 60%' }}> {/* Adjusted width */}
           <FaSearch className="search-icon" />
           <input 
             type="text" 
@@ -461,14 +451,7 @@ const Records = () => {
           <FaFilter /> {filterVisible ? 'Hide Filters' : 'Show Filters'}
         </motion.button>
 
-        <motion.button
-          className="filter-button"
-          onClick={togglePaginationMode}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {useInfiniteScroll ? 'Use Pagination' : 'Use Infinite Scroll'}
-        </motion.button>
+        {/* Removed the circle-shaped element */}
       </div>
       
       {filterVisible && (
@@ -606,90 +589,13 @@ const Records = () => {
             )}
           </div>
           
-          {/* Pagination Controls */}
-          {!useInfiniteScroll && filteredEvents.length > 0 && (
-            <div className="pagination-controls">
-              <button 
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="page-btn prev-btn"
-              >
-                <FaChevronLeft />
-              </button>
-              
-              <div className="page-numbers">
-                {/* First Page */}
-                {currentPage > 2 && (
-                  <button onClick={() => paginate(1)} className="page-btn">
-                    1
-                  </button>
-                )}
-                
-                {/* Ellipsis */}
-                {currentPage > 3 && <span className="ellipsis">...</span>}
-                
-                {/* Previous Page */}
-                {currentPage > 1 && (
-                  <button onClick={() => paginate(currentPage - 1)} className="page-btn">
-                    {currentPage - 1}
-                  </button>
-                )}
-                
-                {/* Current Page */}
-                <button className="page-btn current-page">
-                  {currentPage}
-                </button>
-                
-                {/* Next Page */}
-                {currentPage < totalPages && (
-                  <button onClick={() => paginate(currentPage + 1)} className="page-btn">
-                    {currentPage + 1}
-                  </button>
-                )}
-                
-                {/* Ellipsis */}
-                {currentPage < totalPages - 2 && <span className="ellipsis">...</span>}
-                
-                {/* Last Page */}
-                {currentPage < totalPages - 1 && (
-                  <button onClick={() => paginate(totalPages)} className="page-btn">
-                    {totalPages}
-                  </button>
-                )}
-              </div>
-              
-              <button 
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="page-btn next-btn"
-              >
-                <FaChevronRight />
-              </button>
-            </div>
-          )}
-          
           {/* Infinite Scroll Loader */}
-          {useInfiniteScroll && currentPage < totalPages && !loading && (
+          {currentPage < totalPages && !loading && (
             <div className="infinite-scroll-loader">
               <div className="loading-spinner small"></div>
               <p>Loading more events...</p>
             </div>
           )}
-          
-          <div className="pagination-info">
-            Showing {filteredEvents.length > 0 ? `${indexOfFirstEvent + 1}-${Math.min(indexOfLastEvent, filteredEvents.length)} of ` : ''}{filteredEvents.length} events
-            {filteredEvents.length > 0 && (
-              <motion.button
-                className="mini-pdf-btn"
-                onClick={() => setPdfOptionsVisible(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Generate PDF Report"
-              >
-                <FaFilePdf />
-              </motion.button>
-            )}
-          </div>
         </>
       )}
     </motion.div>

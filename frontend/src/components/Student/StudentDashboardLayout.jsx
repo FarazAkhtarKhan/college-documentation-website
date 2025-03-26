@@ -1,23 +1,16 @@
 import React from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaUserGraduate, FaSignOutAlt } from 'react-icons/fa';
-import { useAuth } from '../../contexts/AuthContext';
+import { FaUserGraduate } from 'react-icons/fa';
+import UserProfileMenu from '../common/UserProfileMenu';
 
 const StudentDashboardLayout = () => {
-  const { currentUser, logout } = useAuth();
-  const navigate = useNavigate();
-  
   const navItems = [
     { path: '/student-dashboard', name: 'Home' },
     { path: '/student-dashboard/events', name: 'Events' },
+    { path: '/student-dashboard/calendar', name: 'Calendar' },
     { path: '/student-dashboard/my-activities', name: 'My Activities' },
   ];
-  
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   return (
     <div className="dashboard-wrapper">
@@ -37,18 +30,7 @@ const StudentDashboardLayout = () => {
           ))}
         </nav>
         <div className="dashboard-actions">
-          <motion.div 
-            className="user-profile"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="user-icon-container student-icon">
-              <FaUserGraduate />
-            </div>
-            <span className="user-name">{currentUser?.name || 'Student'}</span>
-            <button onClick={handleLogout} className="logout-btn" title="Logout">
-              <FaSignOutAlt />
-            </button>
-          </motion.div>
+          <UserProfileMenu />
         </div>
       </header>
       <main className="dashboard-content">

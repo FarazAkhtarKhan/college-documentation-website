@@ -17,7 +17,7 @@ const departmentSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    default: null
+    default: 'soss.jpeg'
   }
 }, { timestamps: true });
 

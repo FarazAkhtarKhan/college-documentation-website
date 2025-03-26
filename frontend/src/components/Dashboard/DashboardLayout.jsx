@@ -1,14 +1,14 @@
 import React from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaUser } from 'react-icons/fa';
+import UserProfileMenu from '../common/UserProfileMenu';
 
 const DashboardLayout = () => {
   const navItems = [
     { path: '/dashboard', name: 'Home' },
     { path: '/dashboard/departments', name: 'Departments' },
     { path: '/dashboard/events', name: 'Events' },
-    { path: '/dashboard/records', name: 'Records' },  // Updated path and name
+    { path: '/dashboard/records', name: 'Records' },
   ];
 
   return (
@@ -26,15 +26,7 @@ const DashboardLayout = () => {
           ))}
         </nav>
         <div className="dashboard-actions">
-          <motion.div 
-            className="user-profile"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="user-icon-container">
-              <FaUser />
-            </div>
-            <span className="user-name">Admin</span>
-          </motion.div>
+          <UserProfileMenu />
         </div>
       </header>
       <main className="dashboard-content">

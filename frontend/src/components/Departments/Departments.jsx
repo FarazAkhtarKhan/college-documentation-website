@@ -41,15 +41,22 @@ const Departments = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
+          style={{ display: 'flex', alignItems: 'center', gap: '20px' }}
         >
           <motion.div 
             className="department-image"
             whileHover={{ scale: 1.05 }}
+            style={{ width: '300px', height: '200px', overflow: 'hidden', borderRadius: '10px' }}
           >
-            <img src={dept.image || '/placeholder.jpg'} alt={dept.name} />
+            {/* Use the department image from the database */}
+            <img 
+              src={dept.image} 
+              alt={dept.name} 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+            />
           </motion.div>
           
-          <div className="department-content">
+          <div className="department-content" style={{ flex: 1 }}>
             <div className="department-header">
               <div className="dept-icon">
                 {/* Choose an icon based on department abbreviation */}
@@ -62,13 +69,7 @@ const Departments = () => {
               {dept.description || 'Department description goes here.'}
             </p>
             
-            <div className="dept-features">
-              <h4>Features & Facilities</h4>
-              <ul>
-                <li>Feature 1</li>
-                <li>Feature 2</li>
-              </ul>
-            </div>
+            {/* Removed the Features & Facilities section */}
             
             <div className="dept-events-preview">
               <h4>Upcoming Events</h4>
