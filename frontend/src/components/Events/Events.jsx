@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { 
   FaCalendarAlt, FaClock, FaUniversity, FaHeading, 
   FaAlignLeft, FaListUl, FaChevronDown, FaChevronUp, FaTrash,
-  FaCheckCircle, FaRegCheckCircle, FaSearch, FaFilter
+  FaCheckCircle, FaRegCheckCircle, FaSearch, FaFilter, FaTag, FaTags, FaUsers
 } from 'react-icons/fa';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
@@ -20,14 +20,26 @@ const Events = () => {
     endDate: '',
     startTime: '',
     endTime: '',
-    details: ''
+    details: '',
+    category: '',
+    tags: [],
+    maxParticipants: 0, // 0 means unlimited
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVisible, setFilterVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    department: '',
+    category: '',
+    dateFrom: '',
+    dateTo: '',
+  });
   // Add missing state variables for infinite scroll
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
 
   const departments = [
     "SSCS - School of Science and Computer Studies",
@@ -36,6 +48,16 @@ const Events = () => {
     "SOET - School of Engineering and Technology",
     "SOLS - School of Legal Studies",
     "SLS - School of Liberal Studies"
+  ];
+
+  const categories = [
+    'Workshop',
+    'Seminar',
+    'Conference',
+    'Competition',
+    'Cultural',
+    'Academic',
+    'Sports'
   ];
 
   useEffect(() => {
@@ -86,7 +108,10 @@ const Events = () => {
         endDate: '',
         startTime: '',
         endTime: '',
-        details: ''
+        details: '',
+        category: '',
+        tags: [],
+        maxParticipants: 0, // 0 means unlimited
       });
       setShowForm(false);
     } catch (err) {
@@ -220,6 +245,46 @@ const Events = () => {
         </motion.button>
       </div>
 
+      {filterVisible && (
+        <motion.div className="filter-panel">
+          <div className="category-filter">
+            <button 
+              className={!selectedCategory ? 'active' : ''}
+              onClick={() => setSelectedCategory('')}
+            >
+              All Categories
+            </button>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                className={selectedCategory === cat ? 'active' : ''}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+          
+          <div className="tag-container">
+            {Array.from(new Set(events.flatMap(e => e.tags))).map(tag => (
+              <span
+                key={tag}
+                className={`tag ${selectedTags.includes(tag) ? 'selected' : ''}`}
+                onClick={() => {
+                  setSelectedTags(prev => 
+                    prev.includes(tag)
+                      ? prev.filter(t => t !== tag)
+                      : [...prev, tag]
+                  );
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       <motion.button
         className="add-event-btn fixed-add-btn"
         onClick={() => setShowForm(!showForm)}
@@ -261,6 +326,35 @@ const Events = () => {
                 <option key={dept} value={dept}>{dept}</option>
               ))}
             </select>
+          </div>
+          
+          <div className="form-group">
+            <label><FaTag /> Category</label>
+            <select
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Category</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label><FaTags /> Tags (comma separated)</label>
+            <input
+              type="text"
+              name="tags"
+              value={formData.tags.join(', ')}
+              onChange={e => {
+                const tags = e.target.value.split(',').map(tag => tag.trim());
+                setFormData(prev => ({ ...prev, tags }));
+              }}
+              placeholder="e.g. technology, beginner-friendly, hands-on"
+            />
           </div>
           
           <div className="form-row">
@@ -320,6 +414,21 @@ const Events = () => {
               rows="4"
               required
             ></textarea>
+          </div>
+
+          <div className="form-group">
+            <label>
+              <FaUsers /> Maximum Participants 
+              <span className="help-text">(0 for unlimited)</span>
+            </label>
+            <input
+              type="number"
+              name="maxParticipants"
+              value={formData.maxParticipants}
+              onChange={handleChange}
+              min="0"
+              step="1"
+            />
           </div>
           
           <button type="submit" className="submit-btn">
@@ -386,6 +495,14 @@ const Events = () => {
                           </motion.button>
                         </div>
                       </div>
+                      <div className="event-category">{event.category}</div>
+                      {event.tags && event.tags.length > 0 && (
+                        <div className="event-tags">
+                          {event.tags.map((tag, i) => (
+                            <span key={i} className="event-tag">{tag}</span>
+                          ))}
+                        </div>
+                      )}
                       <div className="event-dates">
                         <p>
                           <FaCalendarAlt /> {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
@@ -396,6 +513,19 @@ const Events = () => {
                       </div>
                       <div className="event-details">
                         <p>{event.details}</p>
+                      </div>
+                      <div className="capacity-info">
+                        <FaUsers />
+                        {event.maxParticipants > 0 ? (
+                          <>
+                            Capacity: {event.participants?.length || 0}/{event.maxParticipants}
+                            {event.participants?.length >= event.maxParticipants && (
+                              <span className="full-badge">Full</span>
+                            )}
+                          </>
+                        ) : (
+                          'Unlimited capacity'
+                        )}
                       </div>
                     </motion.div>
                   ))}

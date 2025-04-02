@@ -9,6 +9,8 @@ const DashboardLayout = () => {
     { path: '/dashboard/departments', name: 'Departments' },
     { path: '/dashboard/events', name: 'Events' },
     { path: '/dashboard/records', name: 'Records' },
+    { path: '/dashboard/analytics', name: 'Analytics' },
+    { path: '/dashboard/admin-management', name: 'Admin Management' },
   ];
 
   return (

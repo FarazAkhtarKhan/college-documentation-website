@@ -14,6 +14,8 @@ import StudentMyActivities from './components/Student/StudentMyActivities';
 import StudentCalendar from './components/Student/StudentCalendar';
 import UserProfile from './components/Profile/UserProfile';
 import ChangePassword from './components/Profile/ChangePassword';
+import AnalyticsDashboard from './components/Admin/AnalyticsDashboard';
+import AdminManagement from './components/Admin/AdminManagement';
 
 // Protected route component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -57,6 +59,8 @@ const App = () => {
             <Route path="records" element={<Records />} />
             <Route path="profile" element={<UserProfile />} />
             <Route path="change-password" element={<ChangePassword />} />
+            <Route path="analytics" element={<AnalyticsDashboard />} />
+            <Route path="admin-management" element={<AdminManagement />} />
           </Route>
           
           {/* Student Routes */}

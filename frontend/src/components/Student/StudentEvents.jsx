@@ -13,6 +13,8 @@ const StudentEvents = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterVisible, setFilterVisible] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   const [filters, setFilters] = useState({
     department: '',
     dateFrom: '',
@@ -40,35 +42,33 @@ const StudentEvents = () => {
 
   // Fetch upcoming events and user participations
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const fetchEvents = async () => {
       try {
-        const [eventsRes, myEventsRes] = await Promise.all([
-          axios.get('/api/events'),
+        setLoading(true);
+        const [eventsRes, participationsRes] = await Promise.all([
+          axios.get('/api/events/active'),
           axios.get('/api/student/events')
         ]);
-        
-        // Filter for upcoming events only (events that haven't ended yet)
-        const today = new Date();
-        const upcomingEvents = eventsRes.data.events.filter(event => 
-          new Date(event.endDate) >= today && !event.completed
-        );
-        
-        setEvents(upcomingEvents);
-        
-        // Create an array of event IDs the student is participating in
-        const participatingIds = myEventsRes.data.events.map(event => event._id);
+
+        // Get participating event IDs
+        const participatingIds = participationsRes.data.events.map(event => event._id);
         setMyParticipations(participatingIds);
-        
+
+        // Process and set events
+        const activeEvents = eventsRes.data.events;
+        console.log('Fetched events:', activeEvents); // Debug log
+        setEvents(activeEvents);
+        setTotalPages(Math.ceil(activeEvents.length / 10));
+        setError(null);
       } catch (err) {
         console.error('Error fetching events:', err);
-        setError('Failed to load events. Please try again.');
+        setError(err.response?.data?.message || 'Failed to load events. Please try again.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchEvents();
   }, []);
 
   // Apply filters and search
@@ -93,6 +93,16 @@ const StudentEvents = () => {
     if (filters.dateTo && new Date(event.endDate) > new Date(filters.dateTo)) {
       return false;
     }
+
+    // Category filter
+    if (selectedCategory && event.category !== selectedCategory) {
+      return false;
+    }
+
+    // Tags filter
+    if (selectedTags.length > 0 && !event.tags?.some(tag => selectedTags.includes(tag))) {
+      return false;
+    }
     
     return true;
   });
@@ -112,6 +122,8 @@ const StudentEvents = () => {
       dateTo: ''
     });
     setSearchTerm('');
+    setSelectedCategory('');
+    setSelectedTags([]);
   };
 
   const handleParticipate = async (eventId) => {

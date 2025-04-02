@@ -11,27 +11,23 @@ const localizer = momentLocalizer(moment);
 
 // Custom component to add event indicators to date cells
 const DateCellWrapper = ({ children, value, events }) => {
-  // Check if this date has any events
   const hasEvents = events.some(event => {
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
+    const eventStart = new Date(event.startDate);
+    const eventEnd = new Date(event.endDate);
     const date = new Date(value);
     
-    // Reset time to compare only dates
+    // Reset hours for date comparison
     eventStart.setHours(0, 0, 0, 0);
-    eventEnd.setHours(0, 0, 0, 0);
+    eventEnd.setHours(23, 59, 59, 999);
     date.setHours(0, 0, 0, 0);
     
-    // Check if the date is between the event start and end dates (inclusive)
     return date >= eventStart && date <= eventEnd;
   });
 
   return (
-    <div className="rbc-day-bg">
+    <div className="rbc-day-bg" style={{ position: 'relative' }}>
       {children}
-      {hasEvents && (
-        <div className="event-indicator-dot" />
-      )}
+      {hasEvents && <div className="event-indicator-dot" />}
     </div>
   );
 };
@@ -48,31 +44,31 @@ const StudentCalendar = () => {
       setLoading(true);
       try {
         const [eventsRes, myEventsRes] = await Promise.all([
-          axios.get('/api/events'),
+          axios.get('/api/events/active'),
           axios.get('/api/student/events')
         ]);
         
-        // Filter for upcoming events only (events that haven't ended yet)
-        const today = new Date();
-        const upcomingEvents = eventsRes.data.events.filter(event => 
-          new Date(event.endDate) >= today && !event.completed
-        );
+        // Get participating event IDs
+        const participatingIds = myEventsRes.data.events.map(event => event._id);
+        setMyParticipations(participatingIds);
         
         // Format events for the calendar
-        const formattedEvents = upcomingEvents.map(event => ({
+        const formattedEvents = eventsRes.data.events.map(event => ({
           ...event,
           start: new Date(event.startDate),
           end: new Date(event.endDate),
           title: event.title,
-          isParticipating: myEventsRes.data.events.some(e => e._id === event._id)
+          allDay: !event.startTime || !event.endTime,
+          resource: {
+            isParticipating: participatingIds.includes(event._id),
+            department: event.department,
+            details: event.details,
+            startTime: event.startTime,
+            endTime: event.endTime
+          }
         }));
         
         setEvents(formattedEvents);
-        
-        // Create an array of event IDs the student is participating in
-        const participatingIds = myEventsRes.data.events.map(event => event._id);
-        setMyParticipations(participatingIds);
-        
       } catch (err) {
         console.error('Error fetching events for calendar:', err);
         setError('Failed to load events. Please try again.');
@@ -92,17 +88,16 @@ const StudentCalendar = () => {
 
   // Calendar event rendering
   const eventStyleGetter = (event) => {
-    const isParticipating = myParticipations.includes(event._id);
+    const isParticipating = event.resource?.isParticipating;
     
     return {
       style: {
         backgroundColor: isParticipating ? 'var(--success)' : 'var(--primary)',
+        borderRadius: '4px',
+        opacity: 1,
         color: 'white',
-        borderRadius: 'var(--radius-sm)',
         border: 'none',
-        padding: '2px 5px',
-        fontSize: '0.85rem',
-        cursor: 'pointer'
+        display: 'block'
       }
     };
   };
@@ -118,6 +113,11 @@ const StudentCalendar = () => {
   // Custom components
   const components = {
     dateCellWrapper: (props) => <DateCellWrapper {...props} events={events} />
+  };
+
+  // Add tooltips to events
+  const formats = {
+    eventTimeRangeFormat: () => null, // Disable default time range format
   };
 
   return (
@@ -165,11 +165,11 @@ const StudentCalendar = () => {
             startAccessor="start"
             endAccessor="end"
             style={{ height: 700 }}
-            views={[Views.MONTH, Views.WEEK, Views.DAY, Views.AGENDA]}
+            views={[Views.MONTH, Views.WEEK, Views.DAY]}
             eventPropGetter={eventStyleGetter}
             onSelectEvent={handleEventClick}
-            popup={true}
-            tooltipAccessor={event => event.title}
+            formats={formats}
+            tooltipAccessor={event => `${event.title} ${event.resource?.isParticipating ? '(Enrolled)' : ''}`}
             components={components}
           />
           
@@ -188,14 +188,14 @@ const StudentCalendar = () => {
                     <FaCalendarAlt /> {formatDate(selectedEvent.startDate)} - {formatDate(selectedEvent.endDate)}
                   </p>
                   <p>
-                    <FaClock /> {selectedEvent.startTime} - {selectedEvent.endTime}
+                    <FaClock /> {selectedEvent.resource.startTime} - {selectedEvent.resource.endTime}
                   </p>
                   <p>
-                    <FaUniversity /> {selectedEvent.department.split(' - ')[0]}
+                    <FaUniversity /> {selectedEvent.resource.department.split(' - ')[0]}
                   </p>
                 </div>
                 <div className="event-details">
-                  <p>{selectedEvent.details}</p>
+                  <p>{selectedEvent.resource.details}</p>
                 </div>
                 <div className="event-status">
                   {myParticipations.includes(selectedEvent._id) ? (

@@ -15,24 +15,47 @@ const StudentHome = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
       try {
         const [eventsRes, participatingRes] = await Promise.all([
-          axios.get('/api/events'),
+          axios.get('/api/events/active'),
           axios.get('/api/student/events')
         ]);
-        const today = new Date();
-        const upcoming = eventsRes.data.events
-          .filter(event => new Date(event.endDate) >= today && !event.completed)
-          .slice(0, 4);
-        setUpcomingEvents(upcoming);
-        const studentEvents = participatingRes.data.events
-          .filter(event => new Date(event.endDate) >= today)
+
+        const participatingEvents = Array.isArray(participatingRes.data.events) ? participatingRes.data.events : [];
+        const activeEvents = Array.isArray(eventsRes.data.events) ? eventsRes.data.events : [];
+        
+        // Get today's date without time
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        
+        const upcomingParticipating = participatingEvents
+          .filter(event => {
+            // Convert event end date to date-only for comparison
+            const endDate = new Date(event.endDate);
+            const eventEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            const isUpcoming = eventEndDate >= today && !event.completed;
+            console.log(`Event ${event.title}: endDate=${eventEndDate}, today=${today}, isUpcoming=${isUpcoming}`);
+            return isUpcoming;
+          })
           .slice(0, 3);
-        setParticipatingEvents(studentEvents);
+
+        // Get upcoming events (excluding ones already registered for)
+        const participatingIds = upcomingParticipating.map(event => event._id);
+        const upcomingEvents = activeEvents
+          .filter(event => {
+            const endDate = new Date(event.endDate);
+            const eventEndDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+            return eventEndDate >= today && !participatingIds.includes(event._id);
+          })
+          .slice(0, 4);
+
+        setUpcomingEvents(upcomingEvents);
+        setParticipatingEvents(upcomingParticipating);
+        setError(null);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
-        setError('Failed to load dashboard data. Please try again later.');
+        const errorMessage = err.response?.data?.message || err.message;
+        setError(`Failed to load dashboard data: ${errorMessage}`);
       } finally {
         setLoading(false);
       }
@@ -68,7 +91,7 @@ const StudentHome = () => {
           <div className="loading-container"><div className="loading-spinner"></div><p>Loading your activities...</p></div>
         ) : error ? (
           <div className="error-message"><p><FaExclamationTriangle /> {error}</p></div>
-        ) : participatingEvents.length > 0 ? (
+        ) : Array.isArray(participatingEvents) && participatingEvents.length > 0 ? (
           <div className="activities-grid">
             {participatingEvents.map(event => (
               <motion.div key={event._id} className="event-card participating-event" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
@@ -88,7 +111,12 @@ const StudentHome = () => {
           </div>
         ) : (
           <div className="info-message">
-            <FaInfoCircle /><p>You haven't registered for any upcoming events yet.</p>
+            <FaInfoCircle />
+            <p>
+              {Array.isArray(participatingEvents) 
+                ? "You haven't registered for any upcoming events yet."
+                : "Unable to load your registered events. Please try again."}
+            </p>
             <Link to="/student-dashboard/events" className="action-btn">Browse Events</Link>
           </div>
         )}

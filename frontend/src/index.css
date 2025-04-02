@@ -1,6 +1,7 @@
 @import "swiper/css";
 @import "swiper/css/navigation";
 @import "swiper/css/pagination";
+@import './assets/styles/admin.css';
 
 /* Color palette and root variables */
 :root {
@@ -1273,6 +1274,34 @@ textarea:focus {
   color: var(--gray);
 }
 
+.capacity-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: var(--gray-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  color: var(--gray-dark);
+}
+
+.help-text {
+  font-size: 0.8rem;
+  color: var(--gray);
+  margin-left: 0.5rem;
+}
+
+.full-badge {
+  background: var(--warning);
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
 .full-badge,
 .passed-badge {
   background: var(--gray);
@@ -1695,18 +1724,12 @@ textarea:focus {
 }
 
 .rbc-today {
-  background-color: rgba(67, 97, 238, 0.05);
+  background-color: rgba(67, 97, 238, 0.05) !important;
 }
 
 .rbc-event {
-  padding: 0.3rem 0.5rem !important;
-}
-
-.rbc-event-content {
-  font-size: 0.85rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  padding: 4px !important;
+  font-size: 0.85rem !important;
 }
 
 .event-detail-modal {
@@ -1907,14 +1930,14 @@ textarea:focus {
 
 /* Fix for event dots display */
 .event-indicator-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--primary);
-  border-radius: 50%;
   position: absolute;
   bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background-color: var(--primary);
+  border-radius: 50%;
   z-index: 1;
 }
 
@@ -2224,4 +2247,121 @@ textarea:focus {
   .dept-card-image {
     height: 180px;
   }
+}
+
+/* Event Tags and Categories */
+.event-category {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: var(--primary);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.event-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.event-tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--gray-light);
+  color: var(--gray-dark);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.category-filter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+}
+
+.category-filter button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius-sm);
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.category-filter button.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Category and Tag Styles */
+.category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+}
+
+.tag-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.8rem 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  background: var(--gray-light);
+  color: var(--gray-dark);
+  border-radius: var (--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tag:hover {
+  background: var(--gray);
+  color: white;
+}
+
+.tag.selected {
+  background: var(--primary);
+  color: white;
+}
+
+.category-filter {
+  display: flex;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.category-filter button {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius-sm);
+  background: white;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.category-filter button.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
 }

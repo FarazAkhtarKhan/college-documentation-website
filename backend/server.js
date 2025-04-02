@@ -278,13 +278,32 @@ app.get('/api/events/search', async (req, res) => {
 // Add this new endpoint for active events
 app.get('/api/events/active', async (req, res) => {
   try {
-    const today = new Date();
+    const now = new Date();
+    // Set time to start of day for date comparison
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
     const events = await Event.find({
       $and: [
-        { completed: false }, // Not manually marked as completed
-        { endDate: { $gte: today } } // End date hasn't passed
+        { completed: false },
+        {
+          $or: [
+            { endDate: { $gt: today } }, // Future events
+            {
+              $and: [
+                { endDate: { $eq: today.toISOString().split('T')[0] } }, // Today's events
+                { 
+                  $or: [
+                    { endTime: { $gte: now.toTimeString().slice(0, 5) } }, // Not ended yet
+                    { endTime: { $exists: false } } // Events without specific end time
+                  ]
+                }
+              ]
+            }
+          ]
+        }
       ]
     }).sort({ startDate: 1 });
+
     res.json({ events });
   } catch (error) {
     console.error('Error fetching active events:', error);
@@ -465,11 +484,11 @@ app.patch('/api/events/:id', authenticate, authorize(['admin']), async (req, res
 });
 
 // Get event by ID with participants
-app.get('/api/events/:id', async (req, res) => {
+app.get('/api/events/:eventId', async (req, res) => {
   try {
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
     
-    const event = await Event.findById(eventId).populate('participants', 'name email studentId');
+    const event = await Event.findOne({ eventId }).populate('participants', 'name email studentId');
     
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
@@ -483,11 +502,11 @@ app.get('/api/events/:id', async (req, res) => {
 });
 
 // Get event participants (admin only)
-app.get('/api/events/:id/participants', authenticate, authorize(['admin']), async (req, res) => {
+app.get('/api/events/:eventId/participants', authenticate, authorize(['admin']), async (req, res) => {
   try {
-    const eventId = req.params.id;
+    const eventId = req.params.eventId;
     
-    const event = await Event.findById(eventId).populate('participants', 'name email studentId department');
+    const event = await Event.findOne({ eventId }).populate('participants', 'name email studentId department');
     
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
@@ -586,6 +605,51 @@ app.get('/api/users', authenticate, authorize(['admin']), async (req, res) => {
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ error: 'Error fetching users' });
+  }
+});
+
+// Analytics endpoints
+app.get('/api/analytics/participation', authenticate, authorize(['admin']), async (req, res) => {
+  try {
+    const data = await Event.aggregate([
+      { $unwind: '$participants' },
+      { $group: { _id: '$department', participants: { $sum: 1 } } },
+      { $project: { department: '$_id', participants: 1, _id: 0 } }
+    ]);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching participation analytics:', error);
+    res.status(500).json({ error: 'Error fetching participation analytics' });
+  }
+});
+
+app.get('/api/analytics/department-activity', authenticate, authorize(['admin']), async (req, res) => {
+  try {
+    const data = await Event.aggregate([
+      { $group: { _id: '$department', events: { $sum: 1 } } },
+      { $project: { department: '$_id', events: 1, _id: 0 } }
+    ]);
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching department activity analytics:', error);
+    res.status(500).json({ error: 'Error fetching department activity analytics' });
+  }
+});
+
+app.get('/api/analytics/admin', authenticate, authorize(['admin']), async (req, res) => {
+  try {
+    const totalStudents = await User.countDocuments({ role: 'student' });
+    const totalEvents = await Event.countDocuments();
+    const popularEvents = await Event.find().sort({ participants: -1 }).limit(5).select('title participants');
+    const data = [
+      { category: 'Total Students', value: totalStudents },
+      { category: 'Total Events', value: totalEvents },
+      { category: 'Popular Events', value: popularEvents.length }
+    ];
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching admin analytics:', error);
+    res.status(500).json({ error: 'Error fetching admin analytics' });
   }
 });
 
