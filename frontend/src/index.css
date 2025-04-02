@@ -122,19 +122,45 @@ h6 {
     var(--primary-dark)
   );
   animation: fadeIn 0.8s ease;
+  background-image: url('/login-bg.jpg');  /* Add your image path here */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.login-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* Dark overlay for better readability */
+  z-index: 1;
 }
 
 .login-container {
-  background: white;
+  position: relative;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.7); /* More translucent background */
+  backdrop-filter: blur(10px); /* Add blur effect for better readability */
+  -webkit-backdrop-filter: blur(10px); /* For Safari support */
   padding: 2.5rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  text-align: center;
-  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 400px;
-  margin: 1rem;
-  transform: translateY(0);
-  transition: var(--transition);
+  width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Add subtle border */
+  box-sizing: border-box; /* Add this to include padding in width calculation */
+  overflow: hidden; /* Prevent content from spilling out */
+}
+
+.login-container form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .login-container:hover {
@@ -144,8 +170,9 @@ h6 {
 
 /* Keep other login styles */
 .login-container h1 {
+  color: var(--dark); /* Ensure text remains readable */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Add subtle text shadow */
   margin-bottom: 1.5rem;
-  color: var(--primary);
   font-size: 2rem;
 }
 
@@ -159,7 +186,20 @@ h6 {
   border-radius: var(--radius-sm);
   font-size: 1rem;
   transition: var(--transition);
-  background: #f9fafc;
+  background: rgba(255, 255, 255, 0.9); /* Slightly more opaque inputs for readability */
+}
+
+.login-container input {
+  width: 100%;
+  max-width: 100%; /* Ensure input doesn't exceed container width */
+  padding: 0.9rem;
+  margin: 0;
+  border: 1px solid var(--gray-light);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: rgba(255, 255, 255, 0.9);
+  box-sizing: border-box; /* Include padding in width calculation */
 }
 
 .login-container input:focus,
@@ -171,10 +211,17 @@ h6 {
   outline: none;
 }
 
+.login-container input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  transform: none; /* Remove scale transformation on focus */
+}
+
 .login-container button {
   width: 100%;
   padding: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   border: none;
@@ -183,12 +230,38 @@ h6 {
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
+  box-sizing: border-box;
 }
 
 .login-container button:hover {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary-dark));
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+.user-type-icons {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1.5rem 0;
+  color: var(--primary);
+}
+
+.login-help {
+  margin-top: 1.5rem;
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  color: var(--gray-dark);
+}
+
+.login-help a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-help a:hover {
+  text-decoration: underline;
 }
 
 .error {
@@ -627,7 +700,7 @@ textarea:focus {
 .event-card {
   background: white;
   padding: 1.8rem;
-  border-radius: var(--radius-sm);
+  border-radius: var (--radius-sm);
   box-shadow: var(--shadow-sm);
   border-left: 4px solid var(--primary);
   transition: var (--transition);
