@@ -106,7 +106,7 @@ async function initializeDepartments() {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+      
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
