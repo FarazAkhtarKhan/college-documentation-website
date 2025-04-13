@@ -7,7 +7,8 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://college-documentation-website.onrender.com',
+        // Update target to the backend port (5000)
+        target: 'http://localhost:5000',
         changeOrigin: true,
       },
     },
