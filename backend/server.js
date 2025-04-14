@@ -21,7 +21,7 @@ mongoose.connect(MONGODB_URI)
   .catch(err => console.error('MongoDB Atlas connection error:', err));
 
 app.use(cors({
-  origin: 'https://your-frontend-service.vercel.app', // Replace with your Vercel domain
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true,
 }));
 app.use(express.json());
