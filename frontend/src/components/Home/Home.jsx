@@ -86,9 +86,9 @@ const Home = () => {
   return (
     <div className="home-container">
       <section className="hero">
-        <img src="/campus.png" alt="College Campus" className="hero-image" />
+        <img src="/campus.png" alt="Event Venue" className="hero-image" />
         <div className="hero-text">
-          <h1>Welcome to the College Dashboard</h1>
+          <h1>Welcome to the Event Dashboard</h1>
           <p>Explore departments, events, and activities effortlessly.</p>
           <Link to="/dashboard/departments" className="btn">Explore Departments</Link>
         </div>

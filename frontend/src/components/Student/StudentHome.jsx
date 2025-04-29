@@ -72,7 +72,7 @@ const StudentHome = () => {
   return (
     <div className="home-container">
       <section className="hero">
-        <img src="/Image.jpg" alt="College Campus" className="hero-image" />
+        <img src="/Image.jpg" alt="Event Venue" className="hero-image" />
         <div className="hero-text">
           <h1>Welcome, {currentUser?.name || 'Student'}!</h1>
           <p>Explore upcoming events and manage your activities.</p>

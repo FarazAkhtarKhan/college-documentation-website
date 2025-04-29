@@ -1,5 +1,5 @@
 {
-  "name": "college-backend",
+  "name": "event-backend",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {

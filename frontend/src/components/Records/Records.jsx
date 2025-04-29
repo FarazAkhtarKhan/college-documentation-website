@@ -191,8 +191,8 @@ const Records = () => {
     doc.setProperties({
       title: pdfOptions.title,
       subject: 'Event Records',
-      author: 'College Documentation System',
-      creator: 'College Documentation System'
+      author: 'Event Documentation Site',
+      creator: 'Event Documentation Site'
     });
     
     // Add title to the PDF
