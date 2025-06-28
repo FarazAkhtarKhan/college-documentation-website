@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-default-jwt-secret';
 
 // MongoDB Atlas connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://myDB:node1234@cluster0.a1lir.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+const MONGODB_URI = process.env.MONGODB_URI ||
 
 mongoose.connect(MONGODB_URI)
   .then(() => {
